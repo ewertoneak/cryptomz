@@ -2,7 +2,7 @@
   "name": "CryptoMZN",
   "symbol": "MZN",
   "description": "The official token of the Mozambique Digital Currency project.2024",
-  "image": "<IMAGE_URI>",
+  "image": "cryptomzn-logo.png",
   "external_url": "https://mytoken.io",
   "attributes": [
     {
