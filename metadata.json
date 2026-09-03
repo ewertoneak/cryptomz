@@ -3,7 +3,7 @@
   "symbol": "MZN",
   "description": "The official token of the Mozambique Digital Currency project.2024",
   "image": "cryptomzn-logo.png",
-  "external_url": "https://mytoken.io",
+  "external_url": "https://ivory-worried-magpie-415.mypinata.cloud/ipfs/bafybeigttuircevtrsp5i6gmoiy2qbkccjpofxlpdpr2hqz6rjwzggjrzq/cryptomzn-logo.png",
   "attributes": [
     {
       "trait_type": "Category",
@@ -17,7 +17,7 @@
   "properties": {
     "files": [
       {
-        "uri": "<IMAGE_URI>",
+        "uri": "https://ivory-worried-magpie-415.mypinata.cloud/ipfs/bafybeigttuircevtrsp5i6gmoiy2qbkccjpofxlpdpr2hqz6rjwzggjrzq/cryptomzn-logo.png",
         "type": "image/png"
       }
     ],
