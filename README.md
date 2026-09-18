@@ -1,319 +1,245 @@
-# cryptomz
-distination of developers of cryptocorrencies in Afrika
-# cryptomz
-distination of developers of cryptocorrencies in Afrika
+# 🪙 Guia de Criação de Token na Solana usando O Token existente "Crypto MZN" como Exemplo desenvolvido pelo Moçambicano Mr. Robot Ewertoneak 
 
-Documentation on Working CRYPTO-MZN and Digital Metical and Token
+Este tutorial passo a passo demonstra como configurar o ambiente de desenvolvimento, criar uma carteira na rede de testes (Devnet), emitir o seu próprio token usando o **Token-2022** e associar metadados a ele.
 
+---
 
-______________________________________________________________________________________________________
-	
-	1.	Instalação do Solana depois da Instalação do WSL e Linux
-______________________________________________________________________________________________________	
+## 🛠 1. Instalação da CLI da Solana (WSL / Linux)
 
- Executar no Servidor o seguinte comando:
+Execute o seguinte comando no terminal do seu servidor ou ambiente Linux/WSL para instalar o pacote completo da Solana e as suas dependências básicas:
 
-		-----------------------------------------------------------------------------------------------
-		curl --proto '=https' --tlsv1.2 -sSfL https://solana-install.solana.workers.dev | bash
-		-----------------------------------------------------------------------------------------------
- 
- Isto vai instalar todo pacote da Solana & Dependências:
-  I. Rust
-    - cargo
-	- clippy
-	- rust-docs
-	- rust-std
-  II. 	Solana CLI
-  III. 	Anchor CLI
-  IV. 	Yarn
-  V. 	Nodejs
-  
-  Ao terminar os pacotes instalados serão (a saída será):
---------------------------------------------------------------------------------------------  
-|-----------------------------------------------------------------------------|
-|  Installed Versions:														  |
-| Rust: rustc 1.98.0 (88d9e12ae 2026-08-18)									  |
-| Solana CLI: solana-cli 3.1.10 (src:7bc9c805; feat:1620780344, client:Agave) |
-| Anchor CLI: anchor-cli 1.1.2												  |
-| Surfpool CLI: Not installed												  |
-| Node.js: Not installed													  |
-| Yarn: Not installed														  |
-|-----------------------------------------------------------------------------|
----------------------------------------------------------------------------------------------
-  Obs:
-  No caso de algum dos pacotes acima der algum erro de instalação pode instalar singularmente
-  no caso do Yarn (use o comando: "sudo apt install yarn")
-  no caso do Nodejs (use o comando: "sudo apt install nodejs")
- 
- Note: para verificar se esta tudo nos conformes use o comando abaixo
- 
- ---------------------------------------------------------------------------------------------
-  rustc --version && solana --version && anchor --version && node --version && yarn --version
------------------------------------------------------------------------------------------------
+```bash
+curl --proto '=https' --tlsv1.2 -sSfL https://workers.dev | bash
+```
 
- Fazer restart do Terminal para que todas as instalações surtam efeito
- 
- 
+### Pacotes Instalados
+A instalação irá configurar automaticamente as seguintes ferramentas:
+1. **Rust** (`cargo`, `clippy`, `rust-docs`, `rust-std`)
+2. **Solana CLI**
+3. **Anchor CLI**
+4. **Yarn**
+5. **Node.js**
 
-______________________________________________________________________________________________________
+Ao terminar, a saída esperada deverá ser semelhante a esta:
 
-	2.	Criar a Carteira 
-______________________________________________________________________________________________________
+```text
+-----------------------------------------------------------------------------
+ Installed Versions:
+ Rust: rustc 1.98.0 (88d9e12ae 2026-08-18)
+ Solana CLI: solana-cli 3.1.10 (src:7bc9c805; feat:1620780344, client:Agave)
+ Anchor CLI: anchor-cli 1.1.2
+ Surfpool CLI: Not installed
+ Node.js: Not installed
+ Yarn: Not installed
+-----------------------------------------------------------------------------
+```
 
+> 💡 **Nota:** Se o **Yarn** ou o **Node.js** apresentarem erros ou não forem instalados por padrão, instale-os individualmente usando:
+> ```bash
+> sudo apt install yarn
+> sudo apt install nodejs
+> ```
 
-	2.1	Mudar para a DEVNET (Que é a rede Publica para testes free da rede Solana)
-	==============================================================================
+Para verificar se todas as ferramentas foram instaladas com sucesso, execute:
+```bash
+rustc --version && solana --version && anchor --version && node --version && yarn --version
+```
 
- Usaremos o seguinte comando:
-		---------------------------------
-		solana config set --url devnet
-		----------------------------------
-		
-A saída será algo parecido com isto:
---------------------------------------------------------------
--------------------------------------------------------------
-| Config File: /home/ewertoneak/.config/solana/cli/config.yml|
-| RPC URL: https://api.devnet.solana.com					 |
-| WebSocket URL: wss://api.devnet.solana.com/ (computed)	 |
-| Keypair Path: /home/ewertoneak/.config/solana/id.json		 |
-| Commitment: confirmed										 |
--------------------------------------------------------------
------------------------------------------------------------
-  
-	2.2	A seguir criaremos a nossa Wallet/Carteira na Rede Solana
-	============================================================================================== 
-usaremos o seguinte comando:
-		--------------------------------------------------------
-		solana-keygen new --outfile ~/.config/solana/devnet.json
-		--------------------------------------------------------
-		
-		
-A saída será algo parecido com isto:
-------------------------------------
-------------------------------------------------------------------------------------=
-|   Generating a new keypair														|
-|																					|
-| For added security, enter a BIP39 passphrase										|
-|																					|
-| NOTE! This passphrase improves security of the recovery seed phrase NOT the		|
-| keypair file itself, which is stored as insecure plain text						|
-|																					|
-| BIP39 Passphrase (empty for none):												|
-| Enter same passphrase again:														|
-|																					|
-| Wrote new keypair to /home/ewertoneak/.config/solana/devnet.json					|
-| ==================================================================================|
-| pubkey: 4m3hTY7CMug5D9LUMmeAqZbavmicZQMMzTq4mt5epYXA								|
-| ==================================================================================|
-| Save this seed phrase and your BIP39 passphrase to recover your new keypair:		|
-| pool hungry donkey accident trap message plastic under cost permit lens rally		|
-====================================================================================|
+⚠️ **Importante:** Reinicie o seu terminal para que todas as variáveis de ambiente e instalações surtam efeito.
 
-Nota: Isso criará sua carteira e exibirá sua chave pública — salve-a em um local seguro.
-----------------------------------------------------------------------------------------
+---
 
+## 💳 2. Configuração e Criação da Carteira
 
-	2.3 Ativaremos a Wallet/Carteira para definí-la como CLI da Solana (trazê-la a vida):
-	============================================================================================== 
-Estamos a informar ao nosso CLI que a partir daqui todas as modificações que fizermos devem ser nesta Wallet/Carteira
+### 2.1 Alterar para a rede DEVNET
+A **Devnet** é a rede pública de testes gratuita da Solana. Altere o ambiente da CLI executando:
 
- Para tal usaremos o seguinte comando:
- 		--------------------------------------------------------
-		solana config set --keypair ~/.config/solana/devnet.json
-		--------------------------------------------------------
-		
-		
-A saída será algo parecido com isto:
-------------------------------------
---------------------------------------------------------------
-| Config File: /home/ewertoneak/.config/solana/cli/config.yml |
-| RPC URL: https://api.devnet.solana.com					  |
-| WebSocket URL: wss://api.devnet.solana.com/ (computed)	  |
-| Keypair Path: /home/ewertoneak/.config/solana/devnet.json	  |
-| Commitment: confirmed										  |
----------------------------------------------------------------
+```bash
+solana config set --url devnet
+```
 
-	2.4 Vamos verificar se todas as configurações estão conforme:
-	============================================================================================== 
+*Saída esperada:*
+```text
+Config File: /home/usuario/.config/solana/cli/config.yml
+RPC URL: https://solana.com
+WebSocket URL: wss://://solana.com (computed)
+Keypair Path: /home/usuario/.config/solana/id.json
+Commitment: confirmed
+```
 
-Para tal usaremos o seguinte comando:
- 		------------------
-		solana config get
-		------------------
+### 2.2 Criar uma Nova Carteira
+Crie o par de chaves que servirá como a sua carteira de testes:
 
+```bash
+solana-keygen new --outfile ~/.config/solana/devnet.json
+```
 
-A saída será algo parecido com isto:
-------------------------------------
-----------------------------------------------------------------
-| Config File: /home/ewertoneak/.config/solana/cli/config.yml	|
-| RPC URL: https://api.devnet.solana.com						|
-| WebSocket URL: wss://api.devnet.solana.com/ (computed)		|
-| Keypair Path: /home/ewertoneak/.config/solana/devnet.json		|
-| Commitment: confirmed											|
-----------------------------------------------------------------|
+*Saída esperada:*
+```text
+Generating a new keypair
 
-	2.5 Faremos a seguir um teste para verificar a validade da nossa Wallet/Carteira
-	============================================================================================== 
+For added security, enter a BIP39 passphrase
 
-	Vamos pedir a Rede Solana que eles nos dêem um crédito (airdrop) para que possamos usar em testes a nossa nova Wallet/Carteira
-	
-Solicitando um pouco de Devnet SOL para testes com seguinte comando:
- 		------------------
-		solana airdrop 2
-		------------------
+NOTE! This passphrase improves security of the recovery seed phrase NOT the
+keypair file itself, which is stored as insecure plain text
 
-A saída será algo parecido com isto:
-------------------------------------
-------------------------------------------------------------------------------|
-Requesting airdrop of 2 SOL													  |	
-Error: airdrop request failed. This can happen when the rate limit is reached.|
-------------------------------------------------------------------------------|
+BIP39 Passphrase (empty for none): 
+Enter same passphrase again: 
 
- Neste caso não deu certo, o que pode significar que o limite de airdrops para novas Wallet/Carteira foi excedido
- 
- Mas têm um outro método para poder obter esse saldo (airdrop) disponibilizado pela própria rede Solana para DEVNET/testnet
- ===========================================================================================================================
- --> aceda ao website https://faucet.solana.com/ no seu navegador de preferência
- --> troque a rede para DEVNET no canto superior esquerdo
- --> preencha o wallet address pelo seu endereço que pode buscar pelo comando: "solana address"
- --> ao lado do endereço na caixinha "Amount" troque para o valor 2.5
- --> clique no botão "Confirm Airdrop"
- --> feito isso volte a sua CLI (linha de comando ou servidor) e confirme a recepção do saldo pelo comando: "solana balance"
- --> confirme o saldo e vamos continuar
- 
- 
- ______________________________________________________________________________________________________
+Wrote new keypair to /home/usuario/.config/solana/devnet.json
+==================================================================================
+pubkey: 4m3hTY7C...EXEMPLO_DE_CHAVE_PUBLICA...4mt5epYXA
+==================================================================================
+Save this seed phrase and your BIP39 passphrase to recover your new keypair:
+pool hungry donkey accident trap message plastic under cost permit lens rally
+==================================================================================
+```
+> ⚠️ **Aviso:** Guarde a sua frase semente (*seed phrase*) e a sua chave pública num local seguro.
 
-	2.	Criando nosso Crypto (TOken)
-_______________________________________________________________________________________________________
+### 2.3 Ativar a Carteira Criada na CLI
+Defina esta nova carteira como a conta padrão para todas as operações seguintes da CLI:
 
-	2.1	Vamos usar a configuração 'TOKEN 2022' que basicamente é uma tecnologia que permite metadados on-chain, 
- configuração de casas decimais e extensões preparadas para o futuro.
-	===============================================================================================================
-	
-  Para tal usaremos o seguinte comando para a criação do nosso novo Token (Moeda):
+```bash
+solana config set --keypair ~/.config/solana/devnet.json
+```
 
-	----------------------------------------------------------------------------------------------------------------
-	spl-token create-token --program-id TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb --enable-metadata --decimals 9
-	----------------------------------------------------------------------------------------------------------------
+### 2.4 Verificar as Configurações Atuais
+Certifique-se de que a CLI está a apontar para o ficheiro e rede corretos:
 
+```bash
+solana config get
+```
 
-A saída será algo parecido com isto:
-------------------------------------
------------------------------------------------------------------------------------------------------------------------------|	
-Creating token Y2QcQnCPsU7cc52GF1X9X1vwbo4487MZ71bM3wAnTyU under program TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb		 |
-To initialize metadata inside the mint, please run `spl-token initialize-metadata Y2QcQnCPsU7cc52GF1X9X1vwbo4487MZ71bM3wAnTyU| 
-<YOUR_TOKEN_NAME> <YOUR_TOKEN_SYMBOL> <YOUR_TOKEN_URI>`, and sign with the mint authority.									 |
-																															 |
-Address:  Y2QcQnCPsU7cc52GF1X9X1vwbo4487MZ71bM3wAnTyU																		 |
-Decimals:  9																												 |
-																															 |
-Signature: 2Z6iX3x8SkMiqZEARL7TWPxRsaq6pyk35skeWiuv8K9BEa666cSg938HhTgRNHn3RBnw2nWaNYxbmo9V5Kr792hR							 |
------------------------------------------------------------------------------------------------------------------------------|
+*Saída esperada:*
+```text
+Config File: /home/usuario/.config/solana/cli/config.yml
+RPC URL: https://solana.com
+WebSocket URL: wss://://solana.com (computed)
+Keypair Path: /home/usuario/.config/solana/devnet.json
+Commitment: confirmed
+```
 
+### 2.5 Obter Saldo de Testes (Airdrop)
+Para interagir com a rede, precisamos de fundos de teste (SOL). Tente solicitar fundos diretamente via terminal:
 
-	2.2 Criando a nossa Wallet/Carteira para poder guardar os nossos Tokens
-	============================================================================================== 
+```bash
+solana airdrop 2
+```
 
-	Feito isso passaremos a ter o Address/endereço emitido no comando anterior como o nosso Banco, isto é o "mint account" gerado
-	pelo comando anterior passa a ser considerado quem gere todas as regras das contas Tokens futuras do nosso Token Principal,
-	é o qual armazena por exemplo as casas decimais que nos ditam o limite de quanto pode cada conta guardar os tokens, por isso para 
-	termos onde armazenar os nossos Tokens teremos que criar contas (filiadas) a esse endereço mint
-	
- Para tal usaremos o seguinte comando:
- 
- 	----------------------------------------------------------------------------------------------------------------
-	spl-token create-account <MINT_ADDRESS>
-	----------------------------------------------------------------------------------------------------------------
-	
-  Onde substituiremos o (MINT_ADDRESS) pelo gerado na saída (criação do token)
+Se receber uma mensagem de erro devido a limites de requisição excedidos:
+```text
+Error: airdrop request failed. This can happen when the rate limit is reached.
+```
 
+#### Método Alternativo (Faucets Web):
+1. Aceda ao site oficial do Faucet: [https://solana.com](https://solana.com)
+2. Altere a rede para **DEVNET** no canto superior esquerdo.
+3. Obtenha o endereço da sua carteira no terminal usando o comando: `solana address`
+4. Cole o endereço no campo, mude o valor (*Amount*) para `2.5` e clique em **Confirm Airdrop**.
+5. No terminal, valide se os fundos chegaram utilizando o comando: `solana balance`
 
-A saída será algo parecido com isto:
-------------------------------------
-----------------------------------------------------------------------------------------------------|
-Creating account tbJofoA2tGn5274bk9pLKyDQPGhMCf4mPiadyuWiDxo										|
-																									|
-Signature: 52WUT3JkepZpysCT4HwwqBaj7qq1beeCuhXvwg7ha2gxWzPUArA366uiaDx6X1drNnNUHB1cLggSyJXZhN3DkH95	|
-----------------------------------------------------------------------------------------------------|
+---
 
-Isso cria uma conta de carteira capaz de armazenar seu novo token.
+## 🪙 3. Criação do Token (Criptomoeda)
 
-	
-	2.3  A seguir adicionaremos saldo a nossa Wallet/Carteira (Mint the Address)
-	============================================================================================== 
+### 3.1 Emitir o Token utilizando a extensão Token-2022
+Utilizaremos o padrão **Token-2022**, que permite metadados nativos *on-chain* e melhorias de escalabilidade futuras.
 
-Adicionaremos o saldo ao nosso MINT_ADDRESS com seguinte comando:
- 		------------------
-		spl-token mint <MINT_ADDRESS> 1000000
-		------------------
+```bash
+spl-token create-token --program-id TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb --enable-metadata --decimals 9
+```
 
-A saída será algo parecido com isto:
-------------------------------------
-----------------------------------------------------------------------------------------------------|
-| Minting 18446744073.709553 tokens																	|
-|  Token: Y2QcQnCPsU7cc52GF1X9X1vwbo4487MZ71bM3wAnTyU												|
-|  Recipient: tbJofoA2tGn5274bk9pLKyDQPGhMCf4mPiadyuWiDxo											|
-|																									|
-|Signature: 3DpbtpLcsx1b21Umcsd7HNWfSyMXAsdhdG9icr95PBE32ni2V8pXHA5mqupiS1gKb5VLiXaF9kGuLV9UGhHdiS6z|
------------------------------------------------------------------------------------------------------
+*Saída esperada:*
+```text
+Creating token Y2QcQnCP...ENDERECO_DO_TOKEN...bM3wAnTyU under program TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb
+To initialize metadata inside the mint, please run `spl-token initialize-metadata Y2QcQnCP...ENDERECO_DO_TOKEN...bM3wAnTyU <YOUR_TOKEN_NAME> <YOUR_TOKEN_SYMBOL> <YOUR_TOKEN_URI>`, and sign with the mint authority.
 
-	2.3  Vamos checar o nosso saldo a nossa Wallet/Carteira (Mint the Address)
-	============================================================================================== 
+Address:  Y2QcQnCP...ENDERECO_DO_TOKEN...bM3wAnTyU
+Decimals:  9
 
-Usaremos o seguinte comando para checar se o nosso saldo se encontra na Wallet/Carteira:
+Signature: 2Z6iX3x8...ASSINATURA_DA_TRANSACAO...9V5Kr792hR
+```
+> 📌 **Importante:** O endereço gerado acima é a sua **Mint Account** (o contrato que gere as regras do seu token). Copie-o.
 
-	------------------------------------------
-		spl-token balance <MINT_ADDRESS>
-	------------------------------------------
+### 3.2 Criar uma Conta de Token Associada (Associated Token Account)
+Para que a sua carteira principal possa guardar ou receber este novo token, é necessário criar uma conta subordinada ao endereço do token criado.
 
-A saída será algo parecido com isto:
-------------------------------------
----------------------------------------------------------------|
- spl-token balance Y2QcQnCPsU7cc52GF1X9X1vwbo4487MZ71bM3wAnTyU |
-18446744073.709551615										   |
----------------------------------------------------------------|
+```bash
+spl-token create-account <MINT_ADDRESS>
+```
+*(Substitua `<MINT_ADDRESS>` pelo endereço do token gerado no passo anterior)*
 
-	2.4  Vamos checar a nossa carteira e transacções no Solana Explorer (Navegador)
-	============================================================================================== 
-	
- para tal acederemos ao nosso navegador de preferência e usaremos o link abaixo, substituindo pela nosso endereço MINT_ADDRESS
- 
-		https://explorer.solana.com/address/<MINT_ADDRESS>?cluster=devnet 
-	
-	
-Seu token não será exibido com seu nome, símbolo e imagem, pois ainda não adicionamos os metadados.
+*Saída esperada:*
+```text
+Creating account tbJofoA2...CONTA_ASSOCIADA...uWiDxo
 
-	Note: podemos a partir deste ponto importar a nossa Wallet/Carteira para uma Carteira existente usando a nossa chave privada:
-		  ------------------------------------------------------------------------------------------------------------------------
-		  --> Usaremos a Wallet/Carteira Phantom como exemplo:
-			-> Para importar a chave privada, basta acessar o caminho onde o "par de chaves" (keypair) foi salvo
-			   usando o comando "cat" seguido do caminho, por exemplo: ~/.config/solana/devnet.json
-	 		   o comando geral será: cat ~/.config/solana/devnet.json
-		O qual nos trará o seguinte como saída:
-	[92,140,50,185,179,159,180,7,76,16,30,161,206,195,192,139,153,56,58,161,50,196,254,204,171,98,213,220,126,153,2,221,55,219,170,
-	159,199,27,98,32,57,205,18,2,94,110,252,68,206,207,85,221,131,163,122,86,142,181,217,73,49,186,37,25]	
-	
-	     --> Feito isso vamos abrir o Phantom Wallet:
-		   -> Adicionar nova conta
-		   -> Importar uma Chave Privada (private key)
-		   -> Copiar todo esse nr acima incluindo os parênteses rectos "[]"
-		   -> dar um nome a nossa Conta e clicar importar, teremos assim todos dados na Phantom Wallet
-		   
-		Obs: Não nos esquecendo de ativar o modo teste na configuração do Phantom Wallet
-		
+Signature: 52WUT3Jk...ASSINATURA...hN3DkH95
+```
 
-    2.5 Vamos adicionar Metadados (Imagem, descrição) a nossa Crypto
-	==============================================================================================
-	
-	--> Temos que criar um directório (pasta) no nosso servidor/repositório e nela 2 ficheiros
-	   vai ser algo do género:
-					metadata/
-						|--- mytoken-logo.png
-						|--- metadata.json
-	
-	A saída será algo assim:
-------------------------------------
+### 3.3 Emitir Unidades do Token (Minting)
+Agora, vamos gerar saldo inicial de tokens e enviá-los para a conta associada que acabou de criar:
+
+```bash
+spl-token mint <MINT_ADDRESS> 1000000
+```
+
+*Saída esperada:*
+```text
+Minting 1000000 tokens
+  Token: Y2QcQnCP...ENDERECO_DO_TOKEN...bM3wAnTyU
+  Recipient: tbJofoA2...CONTA_ASSOCIADA...uWiDxo
+
+Signature: 3DpbtpLc...ASSINATURA...GhHdiS6z
+```
+
+### 3.4 Verificar o Saldo de Tokens
+Pode confirmar a quantidade total de tokens gerados com o comando:
+
+```bash
+spl-token balance <MINT_ADDRESS>
+```
+
+### 3.5 Explorar a Transação na Web
+Pode auditar todas as transações, contas e o histórico do seu token através do explorador oficial utilizando o seu endereço público:
+
+```text
+https://solana.com<MINT_ADDRESS>?cluster=devnet
+```
+*(Substitua `<MINT_ADDRESS>` pelo endereço do seu token)*
+
+---
+
+## 🦊 4. Importar a Carteira para uma Extensão (Ex: Phantom)
+
+Para gerir os seus tokens graficamente na extensão **Phantom Wallet**, siga estes passos:
+
+1. No terminal, extraia a sua chave privada em formato de matriz numérica (Array) executando:
+   ```bash
+   cat ~/.config/solana/devnet.json
+   ```
+2. A saída será uma sequência numérica semelhante a esta:
+   ```text
+   [92,140,50,185,179,159,180,7,76,16,30,161,206,195,192,139,153,56,58,161,50,196,254,204,171,98,213,220,126,153,2,221,55,219,170,159,199,27,98,32,57,205,18,2,94,110,252,68,206,207,85,221,131,163,122,86,142,181,217,73,49,186,37,25]
+   ```
+3. Abra a sua **Phantom Wallet**:
+   * Clique no menu de contas -> **Adicionar/Conectar Carteira**.
+   * Escolha **Importar Chave Privada**.
+   * Cole toda a linha numérica extraída acima, incluindo os parênteses retos `[]`.
+   * Atribua um nome à conta e conclua a importação.
+
+> ⚠️ **Aviso:** Lembre-se de ativar o **Modo Devnet / Testnet** nas configurações avançadas da Phantom Wallet para visualizar corretamente o seu saldo de testes e o token criado.
+
+---
+
+## 📂 5. Adicionar Metadados à Criptomoeda
+
+Como o token ainda não tem nome ou imagem pública no explorador, precisamos de preparar os metadados.
+
+1. Crie uma pasta chamada `metadata/` no seu projeto.
+2. Guarde lá dentro o logótipo do token (`mytoken-logo.png`).
+3. Crie um ficheiro `metadata.json` com a seguinte estrutura:
+
+```json
 {
   "name": "MyToken Token",
   "symbol": "MTK",
@@ -326,19 +252,3 @@ Seu token não será exibido com seu nome, símbolo e imagem, pois ainda não ad
   ],
   "properties": {
     "files": [{ "uri": "mytoken-logo.png", "type": "image/png" }],
-    "category": "image",
-    "creators": [{ "address": "<YOUR_WALLET_ADDRESS>", "share": 100 }]
-  }
-}
-----------------------------------------------
-
-	--> De seguida deveremos fazer upload para o IPFS (pelo PINATA ou Storacha)
-	Dá para hospedar os metadados do nosso token em qualquer gateway IPFS. 
-	A seguir vamos usar duas opções simples distintas:
-	
-	
-
-
-
-
-
