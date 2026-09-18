@@ -9,7 +9,7 @@ Este tutorial passo a passo demonstra como configurar o ambiente de desenvolvime
 Execute o seguinte comando no terminal do seu servidor ou ambiente Linux/WSL para instalar o pacote completo da Solana e as suas dependências básicas:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSfL https://workers.dev | bash
+curl --proto '=https' --tlsv1.2 -sSfL https://solana-install.solana.workers.dev | bash
 ```
 
 ### Pacotes Instalados
@@ -61,8 +61,8 @@ solana config set --url devnet
 *Saída esperada:*
 ```text
 Config File: /home/usuario/.config/solana/cli/config.yml
-RPC URL: https://solana.com
-WebSocket URL: wss://://solana.com (computed)
+RPC URL: https://api.devnet.solana.com
+WebSocket URL: wss://api.devnet.solana.com/ (computed)
 Keypair Path: /home/usuario/.config/solana/id.json
 Commitment: confirmed
 ```
@@ -113,8 +113,8 @@ solana config get
 *Saída esperada:*
 ```text
 Config File: /home/usuario/.config/solana/cli/config.yml
-RPC URL: https://solana.com
-WebSocket URL: wss://://solana.com (computed)
+RPC URL: https://api.devnet.solana.com
+WebSocket URL: wss://api.devnet.solana.com/ (computed)
 Keypair Path: /home/usuario/.config/solana/devnet.json
 Commitment: confirmed
 ```
@@ -132,7 +132,7 @@ Error: airdrop request failed. This can happen when the rate limit is reached.
 ```
 
 #### Método Alternativo (Faucets Web):
-1. Aceda ao site oficial do Faucet: [https://solana.com](https://solana.com)
+1. Aceda ao site oficial do Faucet: https://faucet.solana.com/
 2. Altere a rede para **DEVNET** no canto superior esquerdo.
 3. Obtenha o endereço da sua carteira no terminal usando o comando: `solana address`
 4. Cole o endereço no campo, mude o valor (*Amount*) para `2.5` e clique em **Confirm Airdrop**.
@@ -203,7 +203,7 @@ spl-token balance <MINT_ADDRESS>
 Pode auditar todas as transações, contas e o histórico do seu token através do explorador oficial utilizando o seu endereço público:
 
 ```text
-https://solana.com<MINT_ADDRESS>?cluster=devnet
+https://explorer.solana.com/address/<MINT_ADDRESS>?cluster=devnet
 ```
 *(Substitua `<MINT_ADDRESS>` pelo endereço do seu token)*
 
@@ -217,14 +217,10 @@ Para gerir os seus tokens graficamente na extensão **Phantom Wallet**, siga est
    ```bash
    cat ~/.config/solana/devnet.json
    ```
-2. A saída será uma sequência numérica semelhante a esta:
-   ```text
-   [92,140,50,185,179,159,180,7,76,16,30,161,206,195,192,139,153,56,58,161,50,196,254,204,171,98,213,220,126,153,2,221,55,219,170,159,199,27,98,32,57,205,18,2,94,110,252,68,206,207,85,221,131,163,122,86,142,181,217,73,49,186,37,25]
-   ```
-3. Abra a sua **Phantom Wallet**:
+2. Abra a sua **Phantom Wallet**:
    * Clique no menu de contas -> **Adicionar/Conectar Carteira**.
    * Escolha **Importar Chave Privada**.
-   * Cole toda a linha numérica extraída acima, incluindo os parênteses retos `[]`.
+   * Cole toda a linha numérica extraída (a array com parênteses retos `[]`).
    * Atribua um nome à conta e conclua a importação.
 
 > ⚠️ **Aviso:** Lembre-se de ativar o **Modo Devnet / Testnet** nas configurações avançadas da Phantom Wallet para visualizar corretamente o seu saldo de testes e o token criado.
@@ -252,3 +248,29 @@ Como o token ainda não tem nome ou imagem pública no explorador, precisamos de
   ],
   "properties": {
     "files": [{ "uri": "mytoken-logo.png", "type": "image/png" }],
+    "category": "image",
+    "creators": [{ "address": "<SUA_CARTEIRA_SOLANA>", "share": 100 }]
+  }
+}
+```
+
+### 5.1 Hospedar os Metadados no IPFS e Vincular ao Token
+
+Para que carteiras como a Phantom e o Solana Explorer reconheçam o nome, símbolo e imagem do seu token, o ficheiro `metadata.json` e a imagem associada precisam de estar alojados publicamente de forma descentralizada.
+
+1. Aceda a um serviço de gateway IPFS (como o Pinata ou o Storacha).
+2. Faça o upload da imagem do logótipo e do ficheiro `metadata.json`.
+3. Copie o link HTTP público gerado pelo Pinata para o seu ficheiro JSON (uma URL de gateway IPFS).
+
+Com a URL em mãos, execute o comando abaixo para atualizar os metadados diretamente na blockchain da Solana:
+
+```bash
+spl-token update-metadata <MINT_ADDRESS> uri <URL_DO_SEU_IPFS_GATEWAY>
+```
+
+#### Exemplo prático de execução:
+```bash
+spl-token update-metadata Y2QcQnCP...ENDERECO_DO_TOKEN...bM3wAnTyU uri https://<SUA_GATEWAY>.mypinata.cloud/ipfs/<SEU_HASH_IPFS>
+```
+
+Após a confirmação da transação na rede, os dados do seu token passarão a ser lidos automaticamente e indexados em todas as plataformas compatíveis com o padrão **Token-2022**.
