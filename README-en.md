@@ -1,4 +1,4 @@
-# 🪙 Solana Token Creation Guide
+# 🪙 Guide to Creating a Token in Solana using the existing "Crypto MZN" token as an example, developed by the Mozambican "Mr. Robot" Ewertoneak.
 
 This step-by-step tutorial demonstrates how to set up your development environment, create a wallet on the test network (Devnet), mint your own token using the **Token-2022** standard, and associate metadata with it.
 
